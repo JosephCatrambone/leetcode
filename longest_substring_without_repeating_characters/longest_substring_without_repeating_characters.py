@@ -21,7 +21,7 @@ def naive_lswr(s: str) -> int:
 # Scan Solution:
 # 
 
-def lswr_scan(s: str) -> int:
+def lswr_window(s: str) -> int:
 	# Start by scanning across the string to find the trivial window size.
 
 	unique_chars = set()
@@ -52,7 +52,7 @@ def lswr_scan(s: str) -> int:
 	return longest_unique_span_length
 			
 	
-def lswr(s: str) -> set:
+def lswr_scan(s: str) -> set:
 	# Note: substring, not subsequence.
 	
 	# At each point, we have a decision to make:
@@ -64,22 +64,30 @@ def lswr(s: str) -> set:
 	# If we add, the 'in progress' substring increases.
 	# If we don't, we start a new 'in progress' subsequence.
 
-	longest_set = set()
-	candidate_set = set()
-	#adding_to_longest_set = True
-	#in_progress_sequences = list()
+	start = 0
+	length = 0
+	character_counts = dict()
 
 	for idx, c in enumerate(s):
-		if c in candidate_set:
-			# We can't take it.
-			if len(candidate_set) > len(longest_set):
-				longest_set = candidate_set
-			candidate_set = set()
-		candidate_set.add(c)
-	# Do one last eval to see if the candidate is longer.
-	if len(candidate_set) > len(longest_set):
-		longest_set = candidate_set
-	return longest_set
+		# We are sliding our window forward
+		if c not in character_counts:
+			character_counts[c] = 0
+		character_counts[c] += 1
+
+		# Check if our set is unique
+		all_unique = True
+		for c, count in character_counts.items():
+			if count > 1:
+				all_unique = False
+
+		if all_unique:
+			length += 1
+		else:
+			# Pop the first character and move our window forward.
+			character_counts[s[start]] -= 1
+			start += 1
+	return length
+		
 
 #
 # Pivot/Merge Solution:
@@ -131,6 +139,7 @@ class Solution:
 	def lengthOfLongestSubstring(self, s: str) -> int:
 		#return lswr_pivots(s)
 		return lswr_scan(s)
+		#return lswr_window(s)
 		#return naive_lswr(s)
 		#return lswr(s)
 
